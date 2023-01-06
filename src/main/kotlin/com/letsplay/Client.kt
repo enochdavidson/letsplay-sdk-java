@@ -1,7 +1,6 @@
 package com.letsplay
 
 import com.letsplay.auth.AuthService
-import com.letsplay.auth.BasicLoginRequest
 import com.letsplay.auth.LoginRequest
 import com.letsplay.auth.Session
 import com.letsplay.exception.ConnectionException
@@ -24,35 +23,34 @@ class Client(
 
     private val authService: AuthService = retrofit.create()
 
-    private var session: Session? = null
-
-    private var socket: Socket? = null
+    private lateinit var session: Session
+    private lateinit var socket: Socket
 
     fun connect(credential: LoginRequest): Socket {
         login(credential)
+        socket.dispose()
         socket = Socket(realtimeUrl, retryStrategy)
-        socket!!.connect(session!!)
-        return socket!!
+        socket.connect(session)
+        return socket
     }
 
-
     private fun login(request: LoginRequest): Session {
-        val call = authService.basicLogin(request as BasicLoginRequest)
+        val call = authService.login(request)
         val response = call.execute()
 
         if (response.isSuccessful) {
-            session = response.body()
-            return session!!
+            session = response.body()!!
+            return session
         } else {
             throw ConnectionException(response.code(), response.toString())
         }
     }
 
-    fun session(): Session? {
+    fun session(): Session {
         return session
     }
 
-    fun socket(): Socket? {
+    fun socket(): Socket {
         return socket
     }
 }

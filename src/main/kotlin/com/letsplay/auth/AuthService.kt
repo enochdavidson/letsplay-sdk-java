@@ -6,6 +6,6 @@ import retrofit2.http.POST
 
 interface AuthService {
 
-    @POST("login/basic")
-    fun basicLogin(@Body request: BasicLoginRequest): Call<Session>
+    @POST("login")
+    fun login(@Body request: LoginRequest): Call<Session>
 }

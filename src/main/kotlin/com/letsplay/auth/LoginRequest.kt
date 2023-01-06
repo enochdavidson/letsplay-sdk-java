@@ -1,6 +1,7 @@
 package com.letsplay.auth
 
-abstract class LoginRequest(
-    open val identity: String,
-    open val credential: String?
+data class LoginRequest(
+    val provider: String,
+    val identity: String?,
+    val credential: String
 )
