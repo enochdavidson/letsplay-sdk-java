@@ -5,6 +5,7 @@ import com.letsplay.auth.LoginRequest
 import com.letsplay.auth.Session
 import com.letsplay.exception.ConnectionException
 import com.letsplay.realtime.Socket
+import com.letsplay.user.UserApi
 import reactor.util.retry.Retry
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -26,9 +27,13 @@ class Client(
     private lateinit var session: Session
     private lateinit var socket: Socket
 
+    val userApi = UserApi(this)
+
     fun connect(credential: LoginRequest): Socket {
         login(credential)
-        socket.dispose()
+        if (::socket.isInitialized) {
+            socket.dispose()
+        }
         socket = Socket(realtimeUrl, retryStrategy)
         socket.connect(session)
         return socket
@@ -46,11 +51,11 @@ class Client(
         }
     }
 
-    fun session(): Session {
+    fun getSession(): Session {
         return session
     }
 
-    fun socket(): Socket {
+    fun getSocket(): Socket {
         return socket
     }
 }

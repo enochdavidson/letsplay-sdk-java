@@ -11,7 +11,11 @@ fun main() {
         "ws://localhost:9898/rsocket",
         Retry.backoff(3, Duration.ofMillis(1000))
     )
-    val socket = client.connect(Logins.basic("john", "pass"))
+    val socket = client.connect(Logins.basic("ann", "pass"))
+
+    client.userApi.me()
+        .doOnNext { println(it) }
+        .subscribe()
 
     socket.send("route.send", Message("client", "route.send"))
         .doOnNext { println(it) }
