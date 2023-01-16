@@ -2,6 +2,7 @@ package com.letsplay.example
 
 import com.letsplay.Client
 import com.letsplay.auth.Logins
+import com.letsplay.game.GameCreateRequest
 import reactor.util.retry.Retry
 import java.time.Duration
 
@@ -13,26 +14,17 @@ fun main() {
     )
     val socket = client.connect(Logins.basic("ann", "pass"))
 
-    client.userApi.me()
+    client.users().me()
         .doOnNext { println(it) }
         .subscribe()
 
-    socket.send("route.send", Message("client", "route.send"))
-        .doOnNext { println(it) }
+    client.games().create(GameCreateRequest("TicTacToe", emptyMap()))
+        .doOnNext {
+            println(it)
+            client.games(it).sendEvent("move", Message("Client", "My Move")).subscribe()
+        }
         .doOnError { println(it) }
-        .doFinally { println("Finally Sent") }
-        .subscribe()
-
-    socket.request<Message>("route.request", Message("client", "route.request"))
-        .doOnNext { println(it) }
-        .doOnError { println(it) }
-        .doFinally { println("Finally Request") }
-        .subscribe()
-
-    socket.receive<Message>("route.receive")
-        .doOnNext { println(it) }
-        .doOnError { println(it) }
-        .doFinally { println("Finally Received") }
+        .doFinally { println("Game Created") }
         .subscribe()
 
     Thread.sleep(60000)

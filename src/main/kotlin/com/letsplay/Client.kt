@@ -4,6 +4,8 @@ import com.letsplay.auth.AuthService
 import com.letsplay.auth.LoginRequest
 import com.letsplay.auth.Session
 import com.letsplay.exception.ConnectionException
+import com.letsplay.game.GameApi
+import com.letsplay.game.GameInstanceApi
 import com.letsplay.realtime.Socket
 import com.letsplay.user.UserApi
 import reactor.util.retry.Retry
@@ -27,7 +29,9 @@ class Client(
     private lateinit var session: Session
     private lateinit var socket: Socket
 
-    val userApi = UserApi(this)
+    private val userApi = UserApi(this)
+
+    private val gameApi = GameApi(this)
 
     fun connect(credential: LoginRequest): Socket {
         login(credential)
@@ -58,4 +62,10 @@ class Client(
     fun getSocket(): Socket {
         return socket
     }
+
+    fun users() = userApi
+
+    fun games() = gameApi
+
+    fun games(gameId: String) = GameInstanceApi(gameId, this)
 }
